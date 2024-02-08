@@ -35,7 +35,9 @@ if __name__ == "__main__":
             "SMC_Herschel-SPIRE_500_Feathered.fits",
             "SMC_askap_parkes_nhi.fits",
         ]
+        hifac = 10.0
         datapath = "SMC_Images"
+        galtype = "SMC_Average"
 
         # fmt: off
         waves = [3.6, 4.5, 5.8, 8.0, 24.0, 70.0, 100.0, 155.0, 165.0, 250., 350., 500.]
@@ -58,6 +60,7 @@ if __name__ == "__main__":
             "lmc_hi_160proj.fits",
         ]
         datapath = "LMC_Images"
+        galtype = "LMC_Average"
 
         # fmt: off
         waves = [3.6, 4.5, 5.8, 8.0, 24.0, 70.0, 100.0, 155.0, 165.0, 250., 350., 500.]
@@ -98,6 +101,9 @@ if __name__ == "__main__":
             ):
                 fluxes[k, kk] = data[int(pix[1]), int(pix[0])]
 
+    # get HI image into correct units
+    fluxes[:, -1] *= hifac
+
     # normalize to the HI column density
     for k in range(n_files - 1):
         fluxes[:, k] = fluxes[:, k] / fluxes[:, -1]
@@ -119,10 +125,6 @@ if __name__ == "__main__":
     figsize = (8, 6)
     fig, ax = plt.subplots(figsize=figsize)
 
-    # normalize to the HI column density
-    for k in range(n_files - 1):
-        fluxes[:, k] = fluxes[:, k] / fluxes[:, -1]
-
     for k in range(n_stars):
         ax.plot(waves, fluxes[k, 0:-1], "ko")
 
@@ -138,6 +140,13 @@ if __name__ == "__main__":
     ax.set_yscale("log")
 
     fig.tight_layout()
+
+    # save to a simple file useful for DGFit
+    otab = QTable()
+    otab["WAVE"] = waves
+    otab["SPEC"] = ave_fluxes
+    otab["ERROR"] = unc_fluxes
+    otab.write(f"{galtype}_DGFIT1_ir_emission.dat", format="ascii.commented_header", overwrite=True)
 
     save_str = "smc_iremission"
     if args.png:
