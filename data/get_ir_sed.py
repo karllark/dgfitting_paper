@@ -35,7 +35,7 @@ if __name__ == "__main__":
             "SMC_Herschel-SPIRE_500_Feathered.fits",
             "SMC_askap_parkes_nhi.fits",
         ]
-        hifac = 10.0
+        hifac = 1.0
         datapath = "SMC_Images"
         galtype = "SMC_Average"
 
